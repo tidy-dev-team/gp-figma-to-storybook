@@ -1,12 +1,12 @@
 # genpact-figma-to-storybook
 
-Transform a Figma component from the Genpact Design System into a production-ready Storybook CSF3 story file, composing the UI from KendoReact primitives.
+Transform a Figma component from the Genpact Design System into a production-ready component + Storybook story, composing the UI from KendoReact primitives.
 
 ---
 
 ## Purpose
 
-Genpact's Figma components are visual compositions of KendoReact primitives (RadioButton, DropDownList, DatePicker, etc.) styled with the Genpact brand tokens. This skill reads the Figma design, maps each visual element to its KendoReact equivalent, and generates a `.stories.tsx` file with full Storybook Controls and one story per Figma variant.
+Genpact's Figma components are visual compositions of KendoReact primitives (RadioButton, DropDownList, DatePicker, etc.) styled with Genpact brand tokens. This skill reads the Figma design, maps each visual element to its KendoReact equivalent, and generates two files: a standalone React component and a Storybook CSF3 story with full Controls.
 
 ---
 
@@ -23,12 +23,27 @@ Example:
 
 ---
 
+## Output (always two files)
+
+```
+src/
+  components/
+    <ComponentName>/
+      <ComponentName>.tsx       ← the React component
+  stories/
+    <ComponentName>.stories.tsx ← the Storybook story (imports from component)
+```
+
+**Never put the component inside the story file.** Always separate them.
+
+---
+
 ## Workflow
 
 ### Step 1 — Parse Input
 
 Extract from the Figma URL:
-- `fileKey`: the path segment after `/design/` (e.g. `Ak8bNddcwozR84eZNnGdwQ`)
+- `fileKey`: path segment after `/design/` (e.g. `Ak8bNddcwozR84eZNnGdwQ`)
 - `nodeId`: from `?node-id=` query param; convert `-` to `:` (e.g. `3493-3254` → `3493:3254`)
 
 ---
@@ -36,19 +51,19 @@ Extract from the Figma URL:
 ### Step 2 — Read Design Context
 
 Call `get_design_context` with the extracted `fileKey` and `nodeId`. This returns:
-- A screenshot of the component
-- Reference React+Tailwind code (use as structural map only — do NOT use as output)
+- A screenshot of the component (visual ground truth)
+- Reference React+Tailwind code (structural map only — do NOT copy as output)
 - Component variant metadata
 
 Also read:
-- `KENDOREACT_COMPONENTS.md` — the visual pattern → KendoReact component map
+- `KENDOREACT_COMPONENTS.md` — visual pattern → KendoReact component map
 - `DESIGN.md` (if present) — Genpact brand tokens in DTCG format
 
 ---
 
 ### Step 3 — Decompose Structure
 
-Analyze the reference code and screenshot to identify every visual sub-element. For each element:
+Analyze the reference code and screenshot to identify every visual sub-element. For each:
 
 1. Name the visual pattern (e.g. "radio button", "dropdown with chevron", "date field")
 2. Look it up in `KENDOREACT_COMPONENTS.md`
@@ -63,112 +78,135 @@ Analyze the reference code and screenshot to identify every visual sub-element. 
 
 ### Step 4 — Identify Variants
 
-From the reference code and Figma component props, identify the distinct states/variants. Map each to a PascalCase story name.
+From the Figma component props, identify the distinct states/variants. Map each to a PascalCase story name.
 
-Example mapping:
-```
-radioFilterChecked = "Default"              → Default
-radioFilterChecked = "Radio filter-unchecked" → Unchecked
-radioFilterChecked = "Radio filter-Unchecked1" → UncheckedAlt
-radioFilterChecked = "Radio filter-checked2"   → CheckedWithCategory
-radioFilterChecked = "Radio filter-checkedReport" → CheckedReport
-```
-
-Target 4–8 story variants. Prioritise: Default (the most representative state), then meaningful interaction states.
+Target 4–8 story variants. Prioritise: Default (most representative state), then meaningful interaction states.
 
 ---
 
-### Step 5 — Generate Component Wrapper
+### Step 5 — Generate the Component File
 
-Create a thin TSX wrapper function (not exported as a component; only used in the story) that:
-- Accepts props matching the story `args`
-- Composes KendoReact primitives to reproduce the Figma layout
-- Uses Genpact brand tokens inline (pull exact hex values from Figma reference code or `DESIGN.md`)
-- Uses controlled state (`useState`) for interactive elements (selected radio, dropdown value, date)
+Write `src/components/<ComponentName>/<ComponentName>.tsx`.
 
-**Layout principles:**
-- Use `display: flex`, `gap`, `alignItems: center` — never absolute positioning
+**Rules:**
+- Export the component and its props type (`export type`, `export function`)
+- Use `useState` for all interactive state (selected radio, dropdown value, date, etc.)
+- Use `useEffect` to sync each prop with its internal state — this makes Storybook Controls work:
+  ```tsx
+  useEffect(() => { setMode(activeFilter); }, [activeFilter]);
+  ```
+- Use Genpact brand tokens from `DESIGN.md` as inline style constants at the top of the file
+- Use CSS flexbox/gap for layout — never absolute positioning
 - Match Figma spacing/padding/radius values from the reference code
-- The component wrapper lives inside the story file, not in a separate file
+- Add `name="<group-name>"` to all `RadioButton` components in the same group
+- No Storybook imports — this file is a plain React component
+
+**Template:**
+```tsx
+import { useState, useEffect } from 'react';
+import { RadioButton, RadioButtonChangeEvent } from '@progress/kendo-react-inputs';
+import { DropDownList, DropDownListChangeEvent } from '@progress/kendo-react-dropdowns';
+// ... other KendoReact imports
+
+// Design tokens (from DESIGN.md)
+const t = {
+  filterRowBg: '#e3e7ef',
+  textPrimary: '#15223f',   // token: main-color
+  rowRadius: 8,             // token: radius.lg
+  fontFamily: 'Rubik, sans-serif',
+  fontSize: 12,
+};
+
+export type FilterMode = 'savings' | 'benchmarking' | 'report';
+
+export type FilterWithRadioProps = {
+  /** Which filter row is currently active */
+  activeFilter: FilterMode;
+  /** Options for the category dropdown */
+  categoryOptions: string[];
+  // ...
+};
+
+export function FilterWithRadio({ activeFilter, categoryOptions }: FilterWithRadioProps) {
+  const [mode, setMode] = useState<FilterMode>(activeFilter);
+  // ...
+
+  useEffect(() => { setMode(activeFilter); }, [activeFilter]);
+  // ...
+
+  return ( /* KendoReact composition */ );
+}
+```
 
 ---
 
-### Step 6 — Generate Story File
+### Step 6 — Generate the Story File
 
-Write the file to `src/stories/<ComponentName>.stories.tsx`.
+Write `src/stories/<ComponentName>.stories.tsx`.
+
+**Rules:**
+- Import the component from its component file — never redefine it here
+- File extension is always `.stories.tsx` (never `.ts`)
+- Use `satisfies Meta<typeof X>` (CSF3, TypeScript strict)
+- `argTypes` must have `control`, `description`, and `options` (for enums) for every prop
+- Use realistic data from Figma text content as `args` values
+- An `AllVariants` story shows all meaningful states side-by-side
 
 **Template:**
 ```tsx
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-// Import only what is actually used:
-import { RadioButton } from '@progress/kendo-react-inputs';
-import { DropDownList } from '@progress/kendo-react-dropdowns';
-import { DatePicker } from '@progress/kendo-react-dateinputs';
+import { FilterWithRadio } from '../components/FilterWithRadio/FilterWithRadio';
 
-// --- Component wrapper (internal to story file) ---
-type FilterWithRadioProps = {
-  filterMode: 'savings' | 'benchmarking' | 'report';
-  categoryOptions: string[];
-  supplierOptions: string[];
-};
-
-function FilterWithRadio({ filterMode, categoryOptions, supplierOptions }: FilterWithRadioProps) {
-  const [selected, setSelected] = useState(filterMode);
-  const [category, setCategory] = useState(categoryOptions[0]);
-  const [supplier, setSupplier] = useState(supplierOptions[0]);
-  const [date, setDate] = useState<Date | null>(new Date('2025-01-21'));
-
-  return (
-    // ... KendoReact composition matching Figma layout
-  );
-}
-
-// --- Storybook meta ---
 const meta = {
   title: 'Genpact/Filters/FilterWithRadio',
   component: FilterWithRadio,
   tags: ['autodocs'],
+  parameters: { layout: 'padded' },
   argTypes: {
-    filterMode: {
-      control: 'select',
+    activeFilter: {
+      control: 'radio',
       options: ['savings', 'benchmarking', 'report'],
-      description: 'Which filter row is active',
+      description: 'Which filter row is initially active',
     },
-    categoryOptions: { control: 'object', description: 'Options for the category dropdown' },
-    supplierOptions: { control: 'object', description: 'Options for the supplier dropdown' },
+    categoryOptions: { control: 'object', description: '...' },
   },
 } satisfies Meta<typeof FilterWithRadio>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// --- Story variants ---
-export const Default: Story = {
-  args: {
-    filterMode: 'savings',
-    categoryOptions: ['All Categories', 'Office Supplies', 'IT Equipment'],
-    supplierOptions: ['All Suppliers', 'Supplier A', 'Supplier B'],
-  },
+const sharedArgs = {
+  categoryOptions: ['All Categories', 'A4 Copy Paper', 'Office Supplies'],
+  // ... realistic data from Figma
 };
 
-// ... additional variants
-```
+export const SavingsSummary: Story = {
+  args: { ...sharedArgs, activeFilter: 'savings' },
+};
 
-**Rules:**
-- File extension is always `.stories.tsx` (never `.ts`)
-- Use `satisfies Meta<typeof X>` (CSF3, TypeScript strict)
-- `argTypes` must have `control`, `description`, and `options` (for enums) for every prop
-- Realistic initial data extracted from Figma text content beats generic placeholders
-- Never add `@storybook/addon-pseudo-states` imports unless it is already in `package.json`
-- Never modify `package.json`, `.storybook/preview.ts`, or any other existing file
+// ... more variants
+
+export const AllVariants: Story = {
+  args: sharedArgs as Story['args'],
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {(['savings', 'benchmarking', 'report'] as const).map((mode) => (
+        <div key={mode}>
+          <p style={{ fontFamily: 'Rubik, sans-serif', fontSize: 11, color: '#98a2b3', marginBottom: 4 }}>{mode}</p>
+          <FilterWithRadio {...sharedArgs} activeFilter={mode} />
+        </div>
+      ))}
+    </div>
+  ),
+};
+```
 
 ---
 
 ### Step 7 — Report
 
-After writing the file, output:
-- File path written
+After writing both files, output:
+- Paths of both files written
 - List of story variant names
 - KendoReact components used and their packages
 - Any visual elements that could not be mapped to KendoReact (needs manual review)
@@ -177,8 +215,12 @@ After writing the file, output:
 
 ## Key Principles
 
-- **"Always KendoReact primitives"** — If a visual element could be a KendoReact component, it must be. Never use raw HTML form elements.
+- **"Two files, always"** — Component in `src/components/<Name>/<Name>.tsx`, story in `src/stories/<Name>.stories.tsx`. Never embed the component inside the story file.
+- **"Export everything the story needs"** — Component function, props type, and any enums must be exported from the component file.
+- **"useEffect syncs props to state"** — Every prop that maps to internal state needs a `useEffect` so Storybook Controls update the component live.
+- **"Always KendoReact primitives"** — Never use raw HTML form elements.
+- **"name= groups radio buttons"** — All `RadioButton` elements in the same group must share a `name` prop.
 - **"Figma variant names → PascalCase story names"** — Map Figma state names directly to story names for traceability.
-- **"Realistic data from Figma text"** — Use the actual text content visible in the Figma design (e.g. "All Categories", "A4 Copy Paper", "21.1.2025") as initial `args` values.
-- **"Layout from Figma spacing, not reference code positions"** — The reference code uses absolute Tailwind positioning. Extract padding/gap values numerically and apply via inline styles or CSS flexbox.
-- **"Never touch config"** — The skill only writes `.stories.tsx` files. It does not install packages, modify `.storybook/`, or change `package.json`.
+- **"Realistic data from Figma text"** — Use actual Figma text content as initial `args` values.
+- **"Layout from Figma spacing"** — Extract padding/gap/radius values from the reference code and apply via inline styles or style objects. Never absolute positioning.
+- **"Never touch config"** — Only writes `src/components/` and `src/stories/` files. Never modifies `.storybook/`, `package.json`, or `DESIGN.md`.
