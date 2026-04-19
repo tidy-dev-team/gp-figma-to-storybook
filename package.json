@@ -1,0 +1,39 @@
+{
+  "name": "genpact-integration",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@progress/kendo-data-query": "^1.7.0",
+    "@progress/kendo-react-buttons": "^9.0.0",
+    "@progress/kendo-react-common": "^9.0.0",
+    "@progress/kendo-react-data-tools": "^9.0.0",
+    "@progress/kendo-react-dateinputs": "^9.0.0",
+    "@progress/kendo-react-dropdowns": "^9.0.0",
+    "@progress/kendo-react-inputs": "^9.0.0",
+    "@progress/kendo-react-intl": "^9.0.0",
+    "@progress/kendo-react-treeview": "^9.0.0",
+    "@progress/kendo-theme-default": "^9.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^8.4.0",
+    "@storybook/addon-interactions": "^8.4.0",
+    "@storybook/react": "^8.4.0",
+    "@storybook/react-vite": "^8.4.0",
+    "@storybook/test": "^8.4.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "storybook": "^8.4.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
