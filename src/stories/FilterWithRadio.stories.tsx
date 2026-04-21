@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FilterWithRadio } from '../components/FilterWithRadio/FilterWithRadio';
 
 const meta = {

@@ -16,6 +16,39 @@ npm run storybook
 # opens at http://localhost:6006
 ```
 
+## Extracting design tokens (one-time setup)
+
+`DESIGN.md` holds all Genpact brand tokens in DTCG format. It feeds into every component generation run, so it must exist before using `/genpact-figma-to-storybook`.
+
+Run the extract skill once per project (re-run only if the Figma foundation file changes):
+
+```
+/ds-extract-design
+```
+
+Point it at the Genpact foundation page:
+
+```
+https://www.figma.com/design/Ak8bNddcwozR84eZNnGdwQ/Design-system--Genpact?node-id=3007-13437
+```
+
+Claude will:
+1. Read the Figma file's variables and styles via the Figma MCP
+2. Categorize tokens into colors, typography, spacing, radius, shadow, and themes
+3. Write `DESIGN.md` in DTCG format — primitives (raw values) + semantic (purposeful names referencing primitives)
+
+The output covers:
+- **80+ primitive colors** — Gray, Primary Blue, Light Blue, Purple, Error, Green, Teal, Chart palettes
+- **~80 semantic tokens** — two themes: **ThemeBlue** (default) and **ThemeGray**
+- **16 typography styles** — Rubik, 5 sizes (12–20 px) × 3 weights
+- **33 spacing tokens** — 4 px base unit, Tailwind-style scale
+- **9 border-radius tokens** — 2 px → 9999 px
+- **1 shadow** — side drawer
+
+> If the Figma Variables API returns a 403 (token scope limitation), the skill falls back to extracting via the Figma Desktop Bridge plugin (`figma_execute`). Start the Desktop Bridge in Figma before running if you hit that error.
+
+---
+
 ## Generating a new component
 
 Run the skill inside Claude Code:

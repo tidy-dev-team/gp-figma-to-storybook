@@ -142,9 +142,9 @@ The component file must never import from `@storybook/*`. The story file must ne
 
 ## 🔣 Icons & SVG
 
-- Inline SVG is acceptable for simple custom icons (e.g., checkmark in a step bullet).
-- Icon paths use `currentColor` or a token color — never raw hex directly on the `<path>`.
-- All SVGs include `viewBox` and `fill="none"` where strokes are used.
+- Always use `SvgIcon` from `@progress/kendo-react-common` + icon definitions from `@progress/kendo-svg-icons`. Never use icon fonts or custom inline SVG when a KendoReact equivalent exists.
+- If no KendoReact icon matches, fall back to inline SVG with `currentColor` fill and add a comment `// no kendo equivalent`.
+- All fallback SVGs include `viewBox` and `fill="none"` where strokes are used.
 
 ---
 

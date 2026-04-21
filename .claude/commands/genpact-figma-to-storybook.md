@@ -1,6 +1,10 @@
 Transform a Figma component from the Genpact Design System into a React component + Storybook story built from KendoReact primitives.
 
-Figma URL: $ARGUMENTS
+Arguments: $ARGUMENTS
+
+Parse arguments as follows:
+- First argument: Figma URL (required)
+- Second argument: Storybook base URL (optional, e.g. `http://localhost:6006`). If omitted, assume `http://localhost:6006`. Never start a new Storybook process — use the URL as-is.
 
 ---
 

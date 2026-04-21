@@ -13,12 +13,15 @@ Genpact's Figma components are visual compositions of KendoReact primitives (Rad
 ## Input
 
 ```
-/genpact-figma-to-storybook <figma-url>
+/genpact-figma-to-storybook <figma-url> [storybook-url]
 ```
+
+- `figma-url` — required. The Figma component URL to build from.
+- `storybook-url` — optional. Base URL of the already-running Storybook instance (e.g. `http://localhost:6007`). Defaults to `http://localhost:6006`. **Never start a new Storybook process** — always use the provided or default URL.
 
 Example:
 ```
-/genpact-figma-to-storybook https://www.figma.com/design/Ak8bNddcwozR84eZNnGdwQ/Design-system--Genpact?node-id=3493-3254
+/genpact-figma-to-storybook https://www.figma.com/design/Ak8bNddcwozR84eZNnGdwQ/Design-system--Genpact?node-id=3493-3254 http://localhost:6007
 ```
 
 ---

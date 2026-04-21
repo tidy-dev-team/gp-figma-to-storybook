@@ -69,6 +69,32 @@ Used by the `/genpact-figma-to-storybook` skill during story generation.
 | Visual filter builder (AND/OR groups) | `Filter` | `@progress/kendo-react-data-tools` | `fields`, `value`, `onChange` |
 | Filter field config | `FieldSettings` (type) | `@progress/kendo-react-data-tools` | `name`, `label`, `filter`, `operators` |
 
+### Icons
+
+Use KendoReact SVG icons for **all** icons. Never use inline SVG or icon fonts when a KendoReact equivalent exists.
+
+| Usage | Import | Package |
+|---|---|---|
+| Render an icon | `SvgIcon` | `@progress/kendo-react-common` |
+| Icon definitions (665 icons) | `*Icon` named exports | `@progress/kendo-svg-icons` |
+
+**Usage pattern:**
+```tsx
+import { SvgIcon } from '@progress/kendo-react-common';
+import { searchIcon, chevronDownIcon, xIcon } from '@progress/kendo-svg-icons';
+
+<SvgIcon icon={searchIcon} size="medium" />
+```
+
+**Icon lookup:** Search the full list at https://www.telerik.com/kendo-react-ui/components/common/svgicon  
+Named exports follow the pattern `<camelCaseName>Icon` (e.g. `chevronDownIcon`, `filterIcon`, `calendarIcon`).
+
+**When no KendoReact icon matches:** use inline SVG with `currentColor` fill and include a comment `// no kendo equivalent`.
+
+**Size values:** `"xsmall"` | `"small"` | `"medium"` (default) | `"large"` | `"xlarge"` | `"xxlarge"` | `"xxxlarge"`
+
+---
+
 ### Layout / Display
 
 | Figma Visual Pattern | KendoReact Component | Package | Key Props |
@@ -120,5 +146,6 @@ npm install \
   @progress/kendo-react-common \
   @progress/kendo-react-intl \
   @progress/kendo-data-query \
-  @progress/kendo-theme-default
+  @progress/kendo-theme-default \
+  @progress/kendo-svg-icons
 ```
