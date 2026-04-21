@@ -58,6 +58,7 @@ Call `get_design_context` with the extracted `fileKey` and `nodeId`. This return
 Also read:
 - `KENDOREACT_COMPONENTS.md` — visual pattern → KendoReact component map
 - `DESIGN.md` (if present) — Genpact brand tokens in DTCG format
+- `REQUIREMENTS.md` — design standards and quality acceptance criteria; all generated code must satisfy every item in the Visual Sign-Off Checklist
 
 ---
 
@@ -205,11 +206,14 @@ export const AllVariants: Story = {
 
 ### Step 7 — Report
 
-After writing both files, output:
-- Paths of both files written
-- List of story variant names
-- KendoReact components used and their packages
-- Any visual elements that could not be mapped to KendoReact (needs manual review)
+After writing both files:
+1. Run `npx tsc --noEmit` — fix all errors before reporting done.
+2. Output:
+   - Paths of both files written
+   - List of story variant names
+   - KendoReact components used and their packages
+   - Any visual elements that could not be mapped to KendoReact (needs manual review)
+   - Confirmation that all items in the `REQUIREMENTS.md` Visual Sign-Off Checklist are satisfied (or note which require 👁️ designer review in Storybook)
 
 ---
 
