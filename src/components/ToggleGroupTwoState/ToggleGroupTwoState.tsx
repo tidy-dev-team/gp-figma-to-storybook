@@ -1,29 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
-
-// Design tokens (from DESIGN.md)
-const t = {
-  containerBg: '#f2f6ff',       // token: button-secondary-fill-background
-  containerRadius: 4,
-  toggleRadius: 8,
-  toggleMinWidth: 70,
-  togglePaddingY: 4,
-  togglePaddingX: 4,
-  // Main variant — active
-  mainActiveBg: '#00aecf',      // token: accent-color
-  mainActiveText: '#ffffff',    // token: checkbox-color-checked
-  // Sub variant — active
-  subActiveBg: '#ffffff',       // token: basic-white
-  subActiveText: '#15223f',     // token: main-color
-  // Shared active shadow
-  activeShadow: '0px 1px 4px 0px rgba(0,0,0,0.1)',
-  // Inactive text
-  mainInactiveText: '#15223f',  // token: main-color
-  subInactiveText: '#475467',   // token: title-color / gray-600
-  fontFamily: 'Rubik, sans-serif',
-  fontSize: 14,
-  lineHeight: '20px',
-};
+import { themeGray, primitives, shared } from '../../theme/tokens';
 
 export type ToggleGroupVariant = 'main' | 'sub';
 export type ToggleGroupSelection = 'left' | 'right';
@@ -41,26 +18,27 @@ export type ToggleGroupTwoStateProps = {
   onChange?: (value: ToggleGroupSelection) => void;
 };
 
-// Background/shadow applied to a wrapper div — KendoReact's flat button
-// has background:transparent !important which beats inline styles on the button itself.
+// Background applied to a wrapper div — KendoReact's flat button has
+// background:transparent !important which overrides inline styles on the button itself.
 function getWrapperStyle(
   side: ToggleGroupSelection,
   active: ToggleGroupSelection,
   variant: ToggleGroupVariant,
 ): React.CSSProperties {
   const isActive = active === side;
-  const base: React.CSSProperties = {
-    borderRadius: t.toggleRadius,
-    transition: 'background 0.15s, box-shadow 0.15s',
-  };
   if (isActive) {
     return {
-      ...base,
-      backgroundColor: variant === 'main' ? t.mainActiveBg : t.subActiveBg,
-      boxShadow: t.activeShadow,
+      borderRadius: shared.radiusLg,
+      backgroundColor: variant === 'main' ? themeGray.accentColor : primitives.white,
+      boxShadow: shared.shadowSm,
+      transition: 'background 0.15s, box-shadow 0.15s',
     };
   }
-  return { ...base, backgroundColor: 'transparent' };
+  return {
+    borderRadius: shared.radiusLg,
+    backgroundColor: 'transparent',
+    transition: 'background 0.15s, box-shadow 0.15s',
+  };
 }
 
 function getButtonStyle(
@@ -70,17 +48,17 @@ function getButtonStyle(
 ): React.CSSProperties {
   const isActive = active === side;
   return {
-    minWidth: t.toggleMinWidth,
-    padding: `${t.togglePaddingY}px ${t.togglePaddingX}px`,
-    fontFamily: t.fontFamily,
-    fontSize: t.fontSize,
-    lineHeight: t.lineHeight,
-    fontWeight: 400,
+    minWidth: 70,
+    padding: `${shared.radiusBase}px`,
+    fontFamily: shared.fontFamily,
+    fontSize: shared.fontSizeSm,
+    lineHeight: shared.lineHeight,
+    fontWeight: shared.fontWeightRegular,
     textAlign: 'center',
     whiteSpace: 'nowrap',
     color: isActive
-      ? (variant === 'main' ? t.mainActiveText : t.subActiveText)
-      : (variant === 'main' ? t.mainInactiveText : t.subInactiveText),
+      ? (variant === 'main' ? themeGray.checkboxColorChecked : themeGray.mainColor)
+      : (variant === 'main' ? themeGray.mainColor : themeGray.titleColor),
     transition: 'color 0.15s',
   };
 }
@@ -106,9 +84,9 @@ export function ToggleGroupTwoState({
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        backgroundColor: t.containerBg,
-        padding: '2px 4px',
-        borderRadius: t.containerRadius,
+        backgroundColor: themeGray.buttonSecondaryFillBackground,
+        padding: `${shared.radiusSm}px ${shared.radiusBase}px`,
+        borderRadius: shared.radiusBase,
         gap: 0,
       }}
     >

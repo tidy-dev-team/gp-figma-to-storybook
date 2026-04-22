@@ -63,6 +63,13 @@ Also read:
 - `DESIGN.md` (if present) — Genpact brand tokens in DTCG format
 - `REQUIREMENTS.md` — design standards and quality acceptance criteria; all generated code must satisfy every item in the Visual Sign-Off Checklist
 
+**Theme resolution (critical):** The Genpact design file contains two themes — **ThemeBlue** and **ThemeGray**. The screenshot from `get_design_context` reflects whichever theme mode is active in Figma for that specific component. When the reference code contains a CSS variable (e.g. `var(--accent-color, #00aecf)`):
+1. Look up the token name in `DESIGN.md` — it will have both `ThemeBlue` and `ThemeGray` values
+2. **Identify which theme the screenshot shows** by comparing the accent/primary color in the screenshot against both theme values in `DESIGN.md` (e.g. teal `#00aecf` = ThemeBlue, orange `#fe9d00` = ThemeGray)
+3. Use **all token values from the matching theme** — never the CSS variable fallback (which may be wrong) and never guess from the screenshot pixel color alone
+4. Comment each token with the theme used: `// token: accent-color / ThemeGray`
+5. If the component must support both themes, add a `theme: 'blue' | 'gray'` prop and select values conditionally
+
 ---
 
 ### Step 3 — Decompose Structure

@@ -2,16 +2,7 @@ import { useState, useEffect } from 'react';
 import { RadioButton, RadioButtonChangeEvent } from '@progress/kendo-react-inputs';
 import { DropDownList, DropDownListChangeEvent } from '@progress/kendo-react-dropdowns';
 import { DatePicker, DatePickerChangeEvent } from '@progress/kendo-react-dateinputs';
-
-// Design tokens (from DESIGN.md)
-const t = {
-  filterRowBg: '#e3e7ef',
-  textPrimary: '#15223f',       // token: main-color / primary-blue/900
-  rowRadius: 8,                 // token: radius.lg
-  fontFamily: 'Rubik, sans-serif',
-  fontSize: 12,
-  lineHeight: '20px',
-};
+import { themeBlue, shared } from '../../theme/tokens';
 
 export type FilterMode = 'savings' | 'benchmarking' | 'report';
 
@@ -46,8 +37,8 @@ export function FilterWithRadio({
     display: 'flex',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: t.filterRowBg,
-    borderRadius: t.rowRadius,
+    backgroundColor: '#e3e7ef',  // filter-row-background (ThemeBlue)
+    borderRadius: shared.radiusLg,
     paddingTop: 4,
     paddingBottom: 4,
     paddingLeft: 8,
@@ -61,10 +52,10 @@ export function FilterWithRadio({
     flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
-    fontFamily: t.fontFamily,
-    fontSize: t.fontSize,
-    lineHeight: t.lineHeight,
-    color: t.textPrimary,
+    fontFamily: shared.fontFamily,
+    fontSize: shared.fontSizeXs,
+    lineHeight: shared.lineHeight,
+    color: themeBlue.mainColor,
   };
 
   const inputWrapStyle: React.CSSProperties = {
@@ -73,16 +64,16 @@ export function FilterWithRadio({
   };
 
   const inlineLabelStyle: React.CSSProperties = {
-    fontFamily: t.fontFamily,
-    fontSize: t.fontSize,
-    color: t.textPrimary,
+    fontFamily: shared.fontFamily,
+    fontSize: shared.fontSizeXs,
+    color: themeBlue.mainColor,
     whiteSpace: 'nowrap',
     flexShrink: 0,
   };
 
   const dropdownStyle: React.CSSProperties = {
-    fontSize: t.fontSize,
-    fontFamily: t.fontFamily,
+    fontSize: shared.fontSizeXs,
+    fontFamily: shared.fontFamily,
   };
 
   return (

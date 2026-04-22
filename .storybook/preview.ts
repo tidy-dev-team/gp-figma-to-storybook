@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react-vite';
 import '@progress/kendo-theme-default/dist/all.css';
+import '../src/theme/kendo-overrides.css';
 
 const preview: Preview = {
   parameters: {

@@ -108,6 +108,64 @@ Named exports follow the pattern `<camelCaseName>Icon` (e.g. `chevronDownIcon`, 
 
 ## Common Patterns
 
+### Overriding KendoReact theme colors
+
+KendoReact's Default theme uses `!important` on fill/border/shadow colors for interactive states (checked, selected, focused). **Inline `style` props cannot override these.** Use a scoped `<style>` tag injected inside a wrapper element instead.
+
+Pattern — wrap the component and inject scoped CSS:
+```tsx
+const WRAPPER_CLASS = 'genpact-my-component';
+
+const overrideStyles = `
+  .${WRAPPER_CLASS} .k-radio:checked,
+  .${WRAPPER_CLASS} .k-radio.k-checked {
+    border-color: #104683 !important;
+    background-color: #104683 !important;
+    box-shadow: none !important;
+  }
+`;
+
+// In JSX:
+<div className={WRAPPER_CLASS}>
+  <style>{overrideStyles}</style>
+  <RadioButton ... />
+</div>
+```
+
+Apply the same pattern for:
+- `RadioButton` → `.k-radio:checked`
+- `Checkbox` → `.k-checkbox:checked`
+- `Switch` → `.k-switch-on .k-switch-thumb-wrap`
+- `Button` active/selected background → `.k-button-flat` (background is `transparent !important`)
+
+For `Button` background specifically: apply the colored background to a **wrapper `<div>`** around the Button rather than injecting CSS, since the button must stay transparent for its content layout.
+
+### Multi-element layouts inside a Button (`k-button-text` wrapper gotcha)
+
+KendoReact's `Button` always wraps **all children** in a single `<span class="k-button-text">`. This means:
+
+- `display: flex` and `gap` on the Button's `style` prop apply to the `<button>` element
+- But the button has **only one flex child** — the `k-button-text` span
+- All your content (text + icons + badges) ends up as siblings *inside* that one span with no flex context
+
+**Consequence:** `gap` between elements inside a Button never works when applied to the Button itself.
+
+**Fix:** Wrap the button's children in an explicit inner flex container:
+```tsx
+<Button fillMode="flat" style={{ color: activeColor, padding: '6px 8px' }}>
+  {/* This inner span becomes the single child of k-button-text,
+      giving us a real flex context between our elements */}
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+    {label}
+    <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: dotColor }} />
+  </span>
+</Button>
+```
+
+This applies any time a Button contains: label + icon, label + badge/dot, icon + text, etc.
+
+---
+
 ### Controlled DropDownList
 ```tsx
 const [value, setValue] = useState<string>('All Categories');

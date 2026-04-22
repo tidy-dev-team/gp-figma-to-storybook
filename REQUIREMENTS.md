@@ -158,7 +158,7 @@ Before marking a component done, confirm all of the following in the Storybook b
 | 2 | All story variants render without console errors | ⚙️ browser console |
 | 3 | `AllVariants` story matches all Figma states visually | 👁️ side-by-side with Figma screenshot |
 | 4 | Changing Controls updates the component live | 👁️ toggle Controls panel |
-| 5 | Colors match Genpact brand tokens exactly | 👁️ eyedrop against Figma |
+| 5 | Colors match the **correct theme** values in `DESIGN.md` — identify the theme from the screenshot (teal = ThemeBlue, orange = ThemeGray), then verify all tokens use that theme's column | 👁️ look up tokens in DESIGN.md |
 | 6 | Font is Rubik, sizes match Figma | 👁️ inspect element |
 | 7 | No raw HTML form elements (`<input>`, `<select>`, `<button>`) | ⚙️ grep / code review |
 | 8 | Layout survives viewport resize (no overflow, no broken grid) | 👁️ resize browser window |

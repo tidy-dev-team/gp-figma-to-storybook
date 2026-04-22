@@ -1,0 +1,59 @@
+/**
+ * Genpact Design System — KendoReact theme overrides (ThemeBlue).
+ *
+ * Remaps KendoReact Default theme CSS variables to Genpact brand tokens.
+ * Imported globally in .storybook/preview.ts (and the app's entry point).
+ *
+ * Because KendoReact uses CSS custom properties throughout its theme, these
+ * overrides propagate to every KendoReact component automatically — no
+ * per-component !important hacks needed.
+ *
+ * Token source: DESIGN.md → ThemeBlue column.
+ */
+
+:root {
+  /* ---------------------------------------------------------------------- */
+  /* Primary interactive color                                                */
+  /* Used by: RadioButton checked, Checkbox checked, Button primary,         */
+  /* focused input rings, selected list items, etc.                          */
+  /* Genpact token: checkbox-fill-checked / ThemeBlue                        */
+  /* ---------------------------------------------------------------------- */
+  --kendo-color-primary:            #104683;
+  --kendo-color-primary-hover:      #0d3a6e;
+  --kendo-color-primary-active:     #0a2d56;
+  --kendo-color-primary-emphasis:   #28588f;
+  --kendo-color-primary-subtle:     #f2f6ff;
+  --kendo-color-primary-subtle-hover:  #d0e2f6;
+  --kendo-color-primary-subtle-active: #a8c7eb;
+  --kendo-color-primary-on-subtle:  #104683;
+  --kendo-color-on-primary:         #ffffff;
+  --kendo-color-primary-on-surface: #104683;
+
+  /* ---------------------------------------------------------------------- */
+  /* Base surface / background                                                */
+  /* ---------------------------------------------------------------------- */
+  --kendo-color-app-surface:        #f9fafb;   /* token: main-background     */
+  --kendo-color-surface:            #f7faff;   /* token: container-background */
+  --kendo-color-surface-alt:        #ffffff;
+  --kendo-color-on-app-surface:     #15223f;   /* token: main-color          */
+  --kendo-color-on-base:            #15223f;
+
+  /* ---------------------------------------------------------------------- */
+  /* Borders                                                                  */
+  /* ---------------------------------------------------------------------- */
+  --kendo-color-border:             #eaecf0;   /* token: input-border        */
+  --kendo-color-border-alt:         #d0d5dd;   /* token: form-border         */
+
+  /* ---------------------------------------------------------------------- */
+  /* Subtle / secondary text                                                  */
+  /* ---------------------------------------------------------------------- */
+  --kendo-color-subtle:             #667085;   /* token: icon-button-color   */
+
+  /* ---------------------------------------------------------------------- */
+  /* Error / warning / success                                                */
+  /* ---------------------------------------------------------------------- */
+  --kendo-color-error:              #f9343f;   /* token: error-color         */
+  --kendo-color-error-subtle:       #ffebec;   /* token: error-background    */
+  --kendo-color-success:            #16b364;   /* token: success-color       */
+  --kendo-color-warning:            #cc9600;   /* token: warning-color       */
+}
