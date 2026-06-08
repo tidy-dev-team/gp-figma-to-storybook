@@ -1,158 +1,204 @@
-# Genpact Design System — Storybook Integration
+# Genpact Design System — Code ⇄ Figma Round-Trip
 
-A Storybook project that mirrors Genpact's Figma Design System in code, built from [KendoReact](https://www.telerik.com/kendo-react-ui/) primitives.
+A skill system that automates a **code→Figma→code round-trip** for Genpact's Design System, built on [KendoReact](https://www.telerik.com/kendo-react-ui/) primitives.
 
 ## What this is
 
-Genpact's designers work in Figma. This project provides a workflow where a developer pastes a Figma component URL into Claude Code, and the LLM reads the design, maps each visual element to the correct KendoReact sub-component, and writes two files: a standalone React component and a Storybook story with interactive Controls.
-
-The output is a living component library in Storybook that matches the Figma designs and is built entirely from KendoReact primitives — no custom UI from scratch.
-
-## Quick start
-
-```bash
-npm install
-npm run storybook
-# opens at http://localhost:6006
-```
-
-## Extracting design tokens (one-time setup)
-
-`DESIGN.md` holds all Genpact brand tokens in DTCG format. It feeds into every component generation run, so it must exist before using `/genpact-figma-to-storybook`.
-
-Run the extract skill once per project (re-run only if the Figma foundation file changes):
+Raw Kendo-9 components are authored in this repo's Storybook, mirrored 1:1 into Figma, branded by a designer in Figma, then synced back to code as a single global Kendo theme override. The deliverable is the repeatable round-trip *capability* — three skills — proven on a small set of components.
 
 ```
-/ds-extract-design
+  ┌──────────────────────┐   /kendo-to-figma    ┌─────────────────┐
+  │  Storybook            │ ───────────────────▶ │  Figma          │
+  │  (raw Kendo-9 + CSF3) │                      │  (sandbox file) │
+  │                       │ ◀─────────────────── │                 │
+  └──────────────────────┘   /figma-to-kendo     └─────────────────┘
+            ▲                                              │
+            │ /kendo-storybook-scaffold       designer brands (manual)
+            │                                              ▼
+        (author raw)                              branded component
 ```
 
-Point it at the Genpact foundation page:
+| Stage | Skill | Direction |
+|---|---|---|
+| 1 — Add a component to Storybook from Kendo | `/kendo-storybook-scaffold` | author raw |
+| 2 — Create the Figma component | `/kendo-to-figma` | code → Figma |
+| 3 — *(designer brands in Figma)* | — | manual |
+| 4 — Update the component in Storybook from Figma | `/figma-to-kendo` | Figma → code |
 
-```
-https://www.figma.com/design/Ak8bNddcwozR84eZNnGdwQ/Design-system--Genpact?node-id=3007-13437
-```
-
-Claude will:
-1. Read the Figma file's variables and styles via the Figma MCP
-2. Categorize tokens into colors, typography, spacing, radius, shadow, and themes
-3. Write `DESIGN.md` in DTCG format — primitives (raw values) + semantic (purposeful names referencing primitives)
-
-The output covers:
-- **80+ primitive colors** — Gray, Primary Blue, Light Blue, Purple, Error, Green, Teal, Chart palettes
-- **~80 semantic tokens** — two themes: **ThemeBlue** (default) and **ThemeGray**
-- **16 typography styles** — Rubik, 5 sizes (12–20 px) × 3 weights
-- **33 spacing tokens** — 4 px base unit, Tailwind-style scale
-- **9 border-radius tokens** — 2 px → 9999 px
-- **1 shadow** — side drawer
-
-> If the Figma Variables API returns a 403 (token scope limitation), the skill falls back to extracting via the Figma Desktop Bridge plugin (`figma_execute`). Start the Desktop Bridge in Figma before running if you hit that error.
+> See `docs/adr/0001-code-to-figma-round-trip.md` for the architecture decision and `CONTEXT.md` for canonical terms. This supersedes the earlier one-way `/genpact-figma-to-storybook` flow, since removed.
 
 ---
 
-## Generating a new component
+## Prerequisites
 
-Run the skill inside Claude Code:
-
-```
-/genpact-figma-to-storybook <figma-url>
-```
-
-Example:
-```
-/genpact-figma-to-storybook https://www.figma.com/design/Ak8bNddcwozR84eZNnGdwQ/Design-system--Genpact?node-id=3493-3254
+```bash
+npm install
+npm run storybook      # http://localhost:6006
 ```
 
-Claude will:
-1. Read the Figma component and screenshot
-2. Map each visual element to a KendoReact component (see `KENDOREACT_COMPONENTS.md`)
-3. Write `src/components/<Name>/<Name>.tsx` — the React component
-4. Write `src/stories/<Name>.stories.tsx` — the Storybook story with Controls
+- **Node + this repo** — Kendo 9 / Storybook / Vite / TypeScript are already wired up.
+- **Figma MCP** (the official `claude.ai Figma` server) — required for stages 2 and 4. Verify with the `whoami` tool if unsure.
+- **A sandbox Figma file** — a throwaway file for stage 2. **Never** point the round-trip at the canonical Genpact DS file (`Ak8bNddcwozR84eZNnGdwQ`).
+- **`DESIGN.md`** — Genpact brand tokens (generated once via `/ds-extract-design`); the source of branding values for stage 4.
+
+---
+
+## The round-trip, stage by stage
+
+### Stage 1 — Add a component to Storybook from Kendo
+
+```
+/kendo-storybook-scaffold <ComponentName> [kendo-package]
+```
+
+| Argument | Required | Meaning |
+|---|---|---|
+| `ComponentName` | ✅ | The KendoReact component to scaffold, e.g. `Button`, `Checkbox`, `DropDownList`. |
+| `kendo-package` | optional | The `@progress/kendo-react-*` package it lives in. Auto-discovered from `node_modules` if omitted. |
+
+**What it does:** discovers the component's real prop axes from Kendo's own type definitions, then writes a thin pass-through wrapper + a CSF3 story exposing those axes as live Controls. No branding, no state.
+
+**Outputs (two files):**
+```
+src/components/<ComponentName>/<ComponentName>.tsx   # raw wrapper: function X(props: XProps) { return <KendoX {...props} /> }
+src/stories/<ComponentName>.stories.tsx              # CSF3 story, title "Raw Kendo/<ComponentName>"
+```
+
+**Example:**
+```
+/kendo-storybook-scaffold Button
+/kendo-storybook-scaffold DropDownList @progress/kendo-react-dropdowns
+```
+
+**Verify:**
+```bash
+npx tsc --noEmit                 # zero errors
+npm run build-storybook          # exit 0
+npm run storybook                # see it under "Raw Kendo/<ComponentName>"
+```
+
+---
+
+### Stage 2 — Create the Figma component
+
+```
+/kendo-to-figma <ComponentName> <sandbox-figma-url>
+```
+
+| Argument | Required | Meaning |
+|---|---|---|
+| `ComponentName` | ✅ | A raw primitive that exists in `src/components/<ComponentName>/`. |
+| `sandbox-figma-url` | ✅ | The sandbox Figma file to write into. **Refused if it's the canonical Genpact DS file.** |
+
+**What it does:** reads the component's prop surface from code and builds a **faithful 1:1** Figma component set — the same axes, the same Kendo option values, no invented variants. Enum axes become Figma variant properties; the matrix is capped on secondary axes (logged in the component description). Default-Kendo styling — branding is the designer's job in stage 3.
+
+**Output:** a Figma component set in the sandbox file (e.g. Button → 55 variants: `fillMode` × `themeColor`).
+
+**Example:**
+```
+/kendo-to-figma Button https://www.figma.com/design/xbpuIo9ZcRwbLtfEXRj2xN/GP-Test
+```
+
+**Verify:** visual sign-off — the Figma component's axes/options match the raw Storybook component; default-Kendo look; written only to the sandbox file.
+
+---
+
+### Stage 3 — Designer brands the component in Figma (manual)
+
+Not automated. The designer applies Genpact's identity to the mirrored component in Figma — colors, corner radius, typography. This is where the code and design intentionally diverge.
+
+*(For testing before a real designer is available, the `/figma-to-kendo` skill permits hand-branding the Figma component as a fixture.)*
+
+---
+
+### Stage 4 — Update the component in Storybook from Figma
+
+```
+/figma-to-kendo <ComponentName> <branded-figma-url>
+```
+
+| Argument | Required | Meaning |
+|---|---|---|
+| `ComponentName` | ✅ | The raw primitive whose Figma mirror was branded, e.g. `Button`. |
+| `branded-figma-url` | ✅ | The polished Figma component/component-set node in the sandbox file. |
+
+**What it does:** reads the branded Figma component, extracts resolved brand values, maps them to `DESIGN.md` tokens, and writes **only the changed** `--kendo-*` variables into the single global override. It never edits component files. Per-component structural changes (padding, alignment, icon side) are **detected and reported**, never written.
+
+**Output:**
+```
+src/theme/kendo-overrides.css    # updated global Kendo theme variables (with DESIGN.md provenance comments)
+```
+…plus a report: variables written (before→after + token), unmatched values, a structural-drift "Manual follow-up" list, and the build result.
+
+**Example:**
+```
+/figma-to-kendo Button https://www.figma.com/design/xbpuIo9ZcRwbLtfEXRj2xN/GP-Test?node-id=3-112
+```
+
+**Verify:**
+```bash
+npx tsc --noEmit                 # zero errors
+npm run build-storybook          # exit 0
+npm run storybook                # flip the Branding toolbar toggle to "Genpact branded" to preview the synced override
+```
+
+The override is a single global stylesheet, so when applied every Kendo component rebrands at once — the loop is closed. In Storybook it is layered on via the **Branding** toolbar toggle (default off = raw Kendo) so the raw stages stay visually faithful to default Kendo.
+
+---
+
+## Worked example (Button)
+
+```
+# 1. author the raw primitive
+/kendo-storybook-scaffold Button
+#    → src/components/Button/Button.tsx + src/stories/Button.stories.tsx (Raw Kendo/Button)
+
+# 2. mirror it into the sandbox Figma file
+/kendo-to-figma Button https://www.figma.com/design/xbpuIo9ZcRwbLtfEXRj2xN/GP-Test
+#    → Figma component set "Button": fillMode (5) × themeColor (11) = 55 variants
+
+# 3. designer brands it in Figma (primary → #104683, corners → 8px)
+
+# 4. sync the branding back
+/figma-to-kendo Button https://www.figma.com/design/xbpuIo9ZcRwbLtfEXRj2xN/GP-Test?node-id=3-112
+#    → kendo-overrides.css gains  --kendo-border-radius-md: 8px  (token: radius.lg)
+```
+
+---
 
 ## Project structure
 
 ```
 ├── src/
-│   ├── components/              # React components (one folder per component)
-│   │   └── FilterWithRadio/
-│   │       └── FilterWithRadio.tsx
-│   └── stories/                 # Storybook stories (one file per component)
-│       └── FilterWithRadio.stories.tsx
-├── .storybook/
-│   ├── main.ts                  # Storybook config (react-vite)
-│   └── preview.ts               # Global KendoReact Default theme import
-├── skills/
-│   └── genpact-figma-to-storybook.md   # Skill definition for Claude Code
-├── CLAUDE.md                    # Claude Code context + skill registration
-├── DESIGN.md                    # Genpact design tokens (DTCG format)
-└── KENDOREACT_COMPONENTS.md     # Figma visual pattern → KendoReact component map
+│   ├── components/<Name>/<Name>.tsx   # raw Kendo-9 wrappers (pass-through, no branding)
+│   ├── stories/<Name>.stories.tsx     # CSF3 stories, title "Raw Kendo/<Name>"
+│   └── theme/
+│       └── kendo-overrides.css        # the single global brand override (stage-4 target)
+├── .storybook/preview.ts              # loads the Kendo Default theme; toggles kendo-overrides.css via the Branding toolbar
+├── skills/                            # skill definitions (authoritative)
+│   ├── kendo-storybook-scaffold.md
+│   ├── kendo-to-figma.md
+│   ├── figma-to-kendo.md
+│   └── ds-extract-design.md
+├── .claude/commands/                  # slash-command wrappers for the skills
+├── CONTEXT.md                         # canonical domain terms
+├── docs/adr/0001-code-to-figma-round-trip.md
+└── DESIGN.md                          # Genpact brand tokens (DTCG)
 ```
+
+## Skills reference
+
+| Skill | Stage | Args | Writes |
+|---|---|---|---|
+| `/kendo-storybook-scaffold` | 1 | `<ComponentName> [kendo-package]` | `src/components/**`, `src/stories/**` |
+| `/kendo-to-figma` | 2 | `<ComponentName> <sandbox-figma-url>` | a sandbox Figma file (never the DS file) |
+| `/figma-to-kendo` | 4 | `<ComponentName> <branded-figma-url>` | `src/theme/kendo-overrides.css` only |
+| `/ds-extract-design` | setup | foundation Figma URL | `DESIGN.md` |
 
 ## Design tokens
 
-`DESIGN.md` contains the full token set extracted from Figma (run once per project with `/ds-extract-design`):
-
-| Category | Count | Notes |
-|---|---|---|
-| Primitive colors | 80+ | Gray, Primary Blue, Light Blue, Purple, Error, Green, Teal, Chart, etc. |
-| Semantic tokens | ~80 | Two themes: **ThemeBlue** (default) and **ThemeGray** |
-| Typography | 16 styles | Rubik font, 5 sizes (12–20px) × 3 weights (Light/Regular/Bold) |
-| Spacing | 33 tokens | Tailwind-style scale, 4px base unit |
-| Border radius | 9 tokens | 2px → 9999px |
-| Shadows | 1 | Side drawer |
-
-Key brand values (ThemeBlue):
-
-| Token | Value | Usage |
-|---|---|---|
-| `main-color` | `#15223f` | Primary text, dark navy |
-| `accent-color` | `#00aecf` | CTAs, active indicators |
-| `top-header-background` | `#104683` | Navigation header |
-| `checkbox-fill-checked` | `#104683` | Selected state for checkboxes/radios |
-| `error-color` | `#f9343f` | Error states |
-| `success-color` | `#16b364` | Success states |
-
-## KendoReact component map
-
-`KENDOREACT_COMPONENTS.md` maps Figma visual patterns to KendoReact APIs. Quick reference:
-
-| Figma pattern | KendoReact component | Package |
-|---|---|---|
-| Radio button | `RadioButton` | `@progress/kendo-react-inputs` |
-| Checkbox | `Checkbox` | `@progress/kendo-react-inputs` |
-| Dropdown with chevron | `DropDownList` | `@progress/kendo-react-dropdowns` |
-| Multi-select chips | `MultiSelect` | `@progress/kendo-react-dropdowns` |
-| Date field + calendar icon | `DatePicker` | `@progress/kendo-react-dateinputs` |
-| Date range inputs | `DateRangePicker` | `@progress/kendo-react-dateinputs` |
-| Button | `Button` | `@progress/kendo-react-buttons` |
-| Composite filter builder | `Filter` | `@progress/kendo-react-data-tools` |
-| Text input | `Input` | `@progress/kendo-react-inputs` |
-| Numeric input | `NumericTextBox` | `@progress/kendo-react-inputs` |
-
-## Component conventions
-
-**Component file** (`src/components/<Name>/<Name>.tsx`):
-- Exports the component function and its props type
-- Uses `useState` for interactive state (selected option, date, etc.)
-- Uses `useEffect` to sync each prop with its internal state (makes Storybook Controls work)
-- Defines design tokens as a `const t = { ... }` block at the top, referencing `DESIGN.md` values
-- Groups radio buttons with a shared `name` prop
-- Layout via CSS flexbox/gap — no absolute positioning
-
-**Story file** (`src/stories/<Name>.stories.tsx`):
-- Imports the component — never redefines it
-- CSF3 format with `satisfies Meta<typeof X>`
-- `argTypes` for every prop with `control`, `description`, and `options`
-- Realistic `args` data taken from Figma text content
-- An `AllVariants` story shows all meaningful states side-by-side
-
-## Figma file
-
-Design System: [Genpact Design System on Figma](https://www.figma.com/design/Ak8bNddcwozR84eZNnGdwQ/Design-system--Genpact)
+`DESIGN.md` holds the full Genpact token set (extracted once via `/ds-extract-design`): ~97 primitive + ~82 semantic colors (two themes — **ThemeBlue** default, **ThemeGray**), 16 typography styles (Rubik), spacing, and 9 radius steps (`sm` 2px → `full` 9999px). Stage 4 maps branded Figma values onto these tokens before writing the override.
 
 ## Tech stack
 
-- React 18 + TypeScript
-- Vite 5
-- Storybook 8 (`@storybook/react-vite`)
-- KendoReact 9 (`@progress/kendo-*`)
-- KendoReact Default theme (`@progress/kendo-theme-default`)
+React 18 · Vite · Storybook · TypeScript · KendoReact 9 (`@progress/kendo-*`) · `@progress/kendo-theme-default` 9.

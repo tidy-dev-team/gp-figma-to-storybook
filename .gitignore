@@ -1,2 +1,8 @@
 node_modules
 .DS_Store
+
+# Storybook build output
+storybook-static
+
+# Claude Code local worktree artifacts
+.claude/worktrees/

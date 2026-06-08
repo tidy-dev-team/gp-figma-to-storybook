@@ -56,4 +56,11 @@
   --kendo-color-error-subtle:       #ffebec;   /* token: error-background    */
   --kendo-color-success:            #16b364;   /* token: success-color       */
   --kendo-color-warning:            #cc9600;   /* token: warning-color       */
+
+  /* ---------------------------------------------------------------------- */
+  /* Border radius                                                            */
+  /* Synced from Figma by /figma-to-kendo (step 4): designer set 8px corners */
+  /* on the Button mirror. Genpact token: radius.lg (8px) / ThemeBlue.       */
+  /* ---------------------------------------------------------------------- */
+  --kendo-border-radius-md:         8px;        /* token: radius.lg / ThemeBlue */
 }
