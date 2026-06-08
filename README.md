@@ -1,12 +1,21 @@
-# Genpact Design System — Storybook Integration
+# Genpact Design System — Code ⇄ Figma Round-Trip
 
-A Storybook project that mirrors Genpact's Figma Design System in code, built from [KendoReact](https://www.telerik.com/kendo-react-ui/) primitives.
+A skill system that automates a **code→Figma→code round-trip** for Genpact's Design System, built on [KendoReact](https://www.telerik.com/kendo-react-ui/) primitives.
 
 ## What this is
 
-Genpact's designers work in Figma. This project provides a workflow where a developer pastes a Figma component URL into Claude Code, and the LLM reads the design, maps each visual element to the correct KendoReact sub-component, and writes two files: a standalone React component and a Storybook story with interactive Controls.
+Raw Kendo-9 components are authored in this repo's Storybook, mirrored 1:1 into Figma, branded by a designer in Figma, then synced back to code as a single global Kendo theme override. The deliverable is the repeatable round-trip *capability* (a set of skills), proven on 3–5 components.
 
-The output is a living component library in Storybook that matches the Figma designs and is built entirely from KendoReact primitives — no custom UI from scratch.
+The loop:
+
+1. **Build** raw Kendo-9 primitives + stories in Storybook — `/kendo-storybook-scaffold`
+2. **Mirror** each raw component 1:1 into a sandbox Figma file — `/kendo-to-figma`
+3. *(Designer brands the components in Figma — manual)*
+4. **Sync back** brand tokens → `src/theme/kendo-overrides.css` + regenerated stories — `/figma-to-kendo`
+
+> **The three round-trip skills are not built yet — they are the v2 work.** See `docs/adr/0001-code-to-figma-round-trip.md` for the decision and rejected alternatives, `CONTEXT.md` for canonical terms, and `v2.md` for the plan.
+>
+> This **supersedes** the project's earlier one-way Figma→Storybook generator (`/genpact-figma-to-storybook`), which is now retired.
 
 ## Quick start
 
@@ -49,7 +58,9 @@ The output covers:
 
 ---
 
-## Generating a new component
+## Generating a new component (RETIRED — old one-way flow)
+
+> The `/genpact-figma-to-storybook` flow below is **retired**, kept for reference only. See the round-trip skills above.
 
 Run the skill inside Claude Code:
 
