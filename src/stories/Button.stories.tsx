@@ -1,10 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { plusIcon, searchIcon, xIcon, checkIcon } from '@progress/kendo-svg-icons';
 import { Button } from '../components/Button/Button';
 
 const THEME_COLORS = ['base', 'primary', 'secondary', 'tertiary', 'info', 'success', 'warning', 'error', 'dark', 'light', 'inverse'] as const;
 const FILL_MODES = ['solid', 'outline', 'flat', 'link', 'clear'] as const;
 const SIZES = ['small', 'medium', 'large'] as const;
 const ROUNDED = ['small', 'medium', 'large', 'full'] as const;
+
+// Icon slots aren't enums — surface them as a select + `mapping` so the icon
+// capability shows up in Controls (and reaches the designer when mirrored to Figma).
+const ICON_OPTIONS = ['none', 'plus', 'search', 'x', 'check'] as const;
+const ICONS = { none: undefined, plus: plusIcon, search: searchIcon, x: xIcon, check: checkIcon };
 
 const meta = {
   title: 'Raw Kendo/Button',
@@ -16,6 +22,8 @@ const meta = {
     fillMode: { control: 'select', options: FILL_MODES, description: 'Kendo fillMode' },
     size: { control: 'radio', options: SIZES, description: 'Kendo size' },
     rounded: { control: 'select', options: ROUNDED, description: 'Kendo corner rounding' },
+    svgIcon: { control: 'select', options: ICON_OPTIONS, mapping: ICONS, description: 'SVG icon (Kendo svgIcon slot)' },
+    type: { control: 'radio', options: ['button', 'submit', 'reset'], description: 'Native button type attribute' },
     disabled: { control: 'boolean', description: 'Disabled state' },
     togglable: { control: 'boolean', description: 'Toggle button behavior' },
     selected: { control: 'boolean', description: 'Selected state (togglable)' },
@@ -28,6 +36,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: { children: 'Button', themeColor: 'primary', fillMode: 'solid', size: 'medium', rounded: 'medium' },
+};
+
+export const WithIcon: Story = {
+  args: { children: 'Add item', svgIcon: plusIcon, themeColor: 'primary', fillMode: 'solid', size: 'medium', rounded: 'medium' },
+};
+
+export const IconOnly: Story = {
+  args: { svgIcon: plusIcon, themeColor: 'primary', fillMode: 'solid', size: 'medium', rounded: 'medium', 'aria-label': 'Add' },
 };
 
 export const ThemeColors: Story = {

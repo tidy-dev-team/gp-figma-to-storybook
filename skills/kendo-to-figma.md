@@ -28,6 +28,7 @@ After step 1 scaffolds raw primitives in code, step 2 reflects them into Figma s
 
 - ⛔ **Never write to the canonical Genpact DS file.** Refuse and ask for a sandbox URL if the target is `Ak8bNddcwozR84eZNnGdwQ`.
 - 🪞 **Faithful 1:1.** Mirror the component's real prop axes using Kendo's exact option values. Do not add axes, options, or variants the code doesn't expose.
+- 🎨 **Mirror visual slots, not just enums.** Icon/adornment slots (`svgIcon`, `startIcon`/`endIcon`, `prefix`/`suffix`) are visual axes the designer must see — include them even when the story's `argTypes` omitted them. Authoritative source is the Kendo type, not the story (see Step 1).
 - 🚫 **No branding.** The mirror reflects default Kendo (the designer brands it in step 3). Don't bake Genpact colors into the Figma component.
 - 📋 **No silent caps.** If a faithful full matrix would be combinatorially huge, cap it deliberately and `log` exactly what was capped and why (see Step 3).
 
@@ -41,13 +42,13 @@ Before any `use_figma` call, read the Figma plugin's `/figma-use` skill (mandato
 
 ### Step 1 — Read the component's prop surface from code
 
-This is the source of truth for the mirror — read it, don't guess:
+This is the source of truth for the mirror — read it, don't guess. **The component's Kendo props type is authoritative; the story is a curation hint, not the contract.** The scaffold's `argTypes` may emphasize the dominant axes and can omit slots that aren't plain controls — so reading only the story will *miss capabilities* (e.g. a Button's icon). Always cross-check against the type.
 
 - `src/components/<ComponentName>/<ComponentName>.tsx` — confirms it's a raw pass-through and which Kendo props type it re-exports.
-- `src/stories/<ComponentName>.stories.tsx` — the `argTypes` already enumerate the meaningful axes and their exact options.
-- `node_modules/@progress/.../index.d.ts` — the authoritative option lists, if the story is ambiguous.
+- `node_modules/@progress/.../index.d.ts` — **the authoritative prop surface**: the real axes, their exact option lists, and the icon/adornment slots (`icon`, `svgIcon`, `startIcon`/`endIcon`, `prefix`/`suffix`). Grep for these explicitly.
+- `src/stories/<ComponentName>.stories.tsx` — the `argTypes` show which axes the scaffold emphasized and the exact option values; use it to *prioritize*, not to *bound*.
 
-Produce the **mirror spec**: the list of prop axes, each with its kind (enum / boolean / text) and exact options.
+Produce the **mirror spec**: every prop axis, each with its kind (enum / boolean / text / **icon slot**) and exact options. **An icon or adornment slot is a visual axis** — model it (e.g. `icon = none | leading | trailing`, or the slot's real positions) with a representative Kendo glyph, so the designer can see the component carries an icon and style it. Never drop a visual slot just because the story omitted it.
 
 ### Step 2 — Resolve the sandbox file and check for an existing component
 
@@ -71,6 +72,8 @@ Use `use_figma` (per the `/figma-use` skill) to create the component / component
 
 Screenshot the created component (`get_screenshot` / `figma_take_screenshot`). Compare against the raw component in the running Storybook (`npm run storybook`, default `http://localhost:6006`) — with the **Branding** toolbar toggle **off** (the default), so Storybook shows default Kendo rather than the synced override. Check: same axes present, same option labels, default Kendo appearance, no invented variants. Iterate up to ~3 times to fix structural mismatches.
 
+**Completeness guard:** before declaring done, cross-check the mirror against the `.d.ts` from Step 1 — any visually-significant prop (enum axis or icon/adornment slot) present in the type but absent from the Figma component must be added, or explicitly logged as a deliberate cap (never silently dropped). An icon-capable component whose Figma mirror shows no icon option is a failure of this step.
+
 ### Step 6 — Report
 
 Output: the sandbox file + node, the variant properties and options created, any matrix caps (with counts and rationale), and a side-by-side note of Figma vs Storybook for the designer's visual sign-off.
@@ -81,6 +84,7 @@ Output: the sandbox file + node, the variant properties and options created, any
 
 - **"Mirror the surface, not a matrix"** — reflect the component's prop axes, don't enumerate every combination.
 - **"Kendo's options, exactly"** — option values come from the code/types, never invented.
+- **"The type is the contract, the story is a hint"** — read the `.d.ts` for the real surface; the story's `argTypes` only prioritize. Icon/adornment slots are visual axes the designer must see, so they're mirrored even when the story omitted them.
 - **"Sandbox only"** — never touch the canonical DS file.
 - **"Cap out loud"** — any bound on the matrix is logged, never silent.
 - **"Default Kendo look"** — branding is the designer's job in step 3.

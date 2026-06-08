@@ -1,10 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { checkIcon, starIcon, plusIcon, xIcon } from '@progress/kendo-svg-icons';
 import { Chip } from '../components/Chip/Chip';
 
 const THEME_COLORS = ['base', 'info', 'success', 'warning', 'error'] as const;
 const FILL_MODES = ['solid', 'outline'] as const;
 const SIZES = ['small', 'medium', 'large'] as const;
 const ROUNDED = ['small', 'medium', 'large', 'full'] as const;
+
+// Icon slots aren't enums — surface them as a select + `mapping` so the icon
+// capability shows up in Controls (and reaches the designer when mirrored to Figma).
+const ICON_OPTIONS = ['none', 'check', 'star', 'plus', 'x'] as const;
+const ICONS = { none: undefined, check: checkIcon, star: starIcon, plus: plusIcon, x: xIcon };
 
 const meta = {
   title: 'Raw Kendo/Chip',
@@ -16,6 +22,7 @@ const meta = {
     fillMode: { control: 'radio', options: FILL_MODES, description: 'Kendo fillMode' },
     size: { control: 'radio', options: SIZES, description: 'Kendo size' },
     rounded: { control: 'select', options: ROUNDED, description: 'Kendo corner rounding' },
+    svgIcon: { control: 'select', options: ICON_OPTIONS, mapping: ICONS, description: 'SVG icon (Kendo svgIcon slot)' },
     removable: { control: 'boolean', description: 'Show remove icon' },
     selected: { control: 'boolean', description: 'Selected state' },
     onRemove: { action: 'remove' },
@@ -28,6 +35,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: { text: 'Chip', value: 'chip', themeColor: 'base', fillMode: 'solid', size: 'medium', rounded: 'medium' },
+};
+
+export const WithIcon: Story = {
+  args: { text: 'Verified', value: 'verified', svgIcon: checkIcon, themeColor: 'success', fillMode: 'solid', size: 'medium', rounded: 'medium' },
 };
 
 export const ThemeColors: Story = {

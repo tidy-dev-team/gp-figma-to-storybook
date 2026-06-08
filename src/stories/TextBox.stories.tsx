@@ -1,9 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { SvgIcon } from '@progress/kendo-react-common';
+import { searchIcon, xIcon, eyeIcon } from '@progress/kendo-svg-icons';
 import { TextBox } from '../components/TextBox/TextBox';
 
 const SIZES = ['small', 'medium', 'large'] as const;
 const ROUNDED = ['small', 'medium', 'large', 'full'] as const;
 const FILL_MODES = ['solid', 'flat', 'outline'] as const;
+
+// prefix/suffix are render-component adornment slots, not enums — surface them as a
+// select + `mapping` of small icon components so the capability shows up in Controls
+// (and reaches the designer when mirrored to Figma).
+const SearchAdornment = () => <SvgIcon icon={searchIcon} />;
+const ClearAdornment = () => <SvgIcon icon={xIcon} />;
+const RevealAdornment = () => <SvgIcon icon={eyeIcon} />;
+const ADORN_OPTIONS = ['none', 'search', 'clear', 'reveal'] as const;
+const ADORNMENTS = { none: undefined, search: SearchAdornment, clear: ClearAdornment, reveal: RevealAdornment };
 
 const meta = {
   title: 'Raw Kendo/TextBox',
@@ -16,6 +27,8 @@ const meta = {
     size: { control: 'radio', options: SIZES, description: 'Kendo size' },
     rounded: { control: 'select', options: ROUNDED, description: 'Kendo corner rounding' },
     fillMode: { control: 'radio', options: FILL_MODES, description: 'Kendo fillMode' },
+    prefix: { control: 'select', options: ADORN_OPTIONS, mapping: ADORNMENTS, description: 'Leading adornment (Kendo prefix slot)' },
+    suffix: { control: 'select', options: ADORN_OPTIONS, mapping: ADORNMENTS, description: 'Trailing adornment (Kendo suffix slot)' },
     onChange: { action: 'change' },
   },
 } satisfies Meta<typeof TextBox>;
@@ -29,6 +42,10 @@ export const Default: Story = {
 
 export const WithValue: Story = {
   args: { defaultValue: 'Genpact', size: 'medium', fillMode: 'solid' },
+};
+
+export const WithAdornment: Story = {
+  args: { placeholder: 'Search', prefix: SearchAdornment, size: 'medium', rounded: 'medium', fillMode: 'solid' },
 };
 
 export const Disabled: Story = {

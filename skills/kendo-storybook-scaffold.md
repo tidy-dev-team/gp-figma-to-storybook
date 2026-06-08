@@ -48,6 +48,7 @@ src/stories/<ComponentName>.stories.tsx              ← the CSF3 story
 4. **No `useState`/`useEffect` sync.** A pass-through re-renders on prop change, so Storybook Controls already work live. (This deliberately departs from the retired per-component-wrapper model.)
 5. **No Storybook imports** in the component file.
 6. **Story title:** `Raw Kendo/<ComponentName>` — keeps the raw set grouped and separate from any branded/legacy stories.
+7. **Surface every *visual* capability, not just the enum axes.** A prop being non-enum (an icon object, a ReactNode, a render-component adornment) is not a reason to omit it — it just can't be a plain control. Icon/adornment slots (`icon`, `svgIcon`, `startIcon`/`endIcon`, `prefix`/`suffix`) are first-class design decisions the designer must see in the Figma mirror, so they MUST appear as controls. Expose them with a `select` + `mapping` (see Step 3). Behavioral-only props (`type`, `tabIndex`, `name`) are optional; a missing *visual* slot is a bug.
 
 ---
 
@@ -64,9 +65,13 @@ grep -rl "export declare const <ComponentName>" node_modules/@progress/kendo-rea
 # Its exported props interface + axis enums (size, rounded, fillMode, themeColor, …)
 grep -nE "export declare interface <ComponentName>Props|size\?:|rounded\?:|fillMode\?:|themeColor\?:|disabled\?:" \
   node_modules/@progress/<package>/index.d.ts
+
+# Icon / adornment slots — these are visual capabilities the designer must see (rule 7)
+grep -nE "icon\?:|svgIcon\?:|startIcon\?:|endIcon\?:|prefix\?:|suffix\?:" \
+  node_modules/@progress/<package>/index.d.ts
 ```
 
-Record the real option lists (e.g. Button `fillMode`: `solid | outline | flat | link | clear`). These become the story's `argTypes` options — they must match Kendo exactly.
+Record the real option lists (e.g. Button `fillMode`: `solid | outline | flat | link | clear`). These become the story's `argTypes` options — they must match Kendo exactly. Note which **icon/adornment slots** the component exposes (`svgIcon`, `startIcon`/`endIcon`, `prefix`/`suffix`) — they're surfaced too (rule 7, Step 3).
 
 ### Step 2 — Write the wrapper
 
@@ -79,6 +84,15 @@ Record the real option lists (e.g. Button `fillMode`: `solid | outline | flat | 
 - CSF3 with `satisfies Meta<typeof X>` and `StoryObj<typeof meta>`.
 - Title `Raw Kendo/<ComponentName>`, `parameters: { layout: 'padded' }`.
 - An `argTypes` entry for **every meaningful Kendo prop axis**, with `control` + `description`, and `options` taken from Step 1 for enums (`select` for long lists, `radio` for ≤3).
+- **Icon / adornment slots (rule 7).** For each icon slot the component exposes, add a `select` control with a `mapping` so the non-primitive value is selectable — and a `WithIcon` (or `WithAdornment`) story so the capability is visible by default:
+  ```tsx
+  import { plusIcon, searchIcon, xIcon, checkIcon } from '@progress/kendo-svg-icons';
+  const ICON_OPTIONS = ['none', 'plus', 'search', 'x', 'check'] as const;
+  const ICONS = { none: undefined, plus: plusIcon, search: searchIcon, x: xIcon, check: checkIcon };
+  // …in argTypes:
+  svgIcon: { control: 'select', options: ICON_OPTIONS, mapping: ICONS, description: 'SVG icon (Kendo svgIcon slot)' },
+  ```
+  For `SVGIcon` props (`svgIcon`, DropDownList toggle), map option → icon object. For `ReactNode`/render-component slots (`startIcon`/`endIcon`, TextBox `prefix`/`suffix`), map option → a tiny component that renders `<SvgIcon icon={…} />` (from `@progress/kendo-react-common`). Pick 3–4 representative `@progress/kendo-svg-icons` glyphs; `none` ⇒ `undefined`.
 - Event props (`onClick`, `onChange`, `onRemove`) get `{ action: '<event>' }` — this also supplies a handler so controlled inputs don't warn.
 - For controlled inputs (value/checked), prefer `defaultValue`/`defaultChecked` args so the story stays interactive.
 - Variant stories per dominant axis (e.g. `ThemeColors`, `FillModes`, `Sizes`, `Disabled`) plus an `AllVariants` story showing the meaningful states side-by-side. Disable irrelevant controls per grid story with `argTypes: { x: { table: { disable: true } } }`.
@@ -103,5 +117,6 @@ Output: the two file paths, the prop axes exposed as controls, the story variant
 
 - **"Raw means raw"** — the wrapper adds nothing Kendo didn't already have.
 - **"Kendo's types are the contract"** — re-export them; the story's controls mirror them exactly.
+- **"Show the designer every visual capability"** — icon and adornment slots get controls (via `mapping`) and a demo story, so they survive into the Figma mirror. A non-enum prop is surfaced differently, not dropped.
 - **"Branding is not this skill's job"** — it arrives later, globally, via the override file.
 - **"Two files, always"** — wrapper in `src/components/`, story in `src/stories/`.

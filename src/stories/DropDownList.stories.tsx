@@ -1,10 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { chevronDownIcon, caretAltDownIcon, searchIcon } from '@progress/kendo-svg-icons';
 import { DropDownList } from '../components/DropDownList/DropDownList';
 
 const SIZES = ['small', 'medium', 'large'] as const;
 const ROUNDED = ['small', 'medium', 'large', 'full'] as const;
 const FILL_MODES = ['solid', 'flat', 'outline'] as const;
 const DATA = ['Small', 'Medium', 'Large', 'Extra Large'];
+
+// The toggle icon isn't an enum — surface it as a select + `mapping` so the icon
+// capability shows up in Controls (and reaches the designer when mirrored to Figma).
+const ICON_OPTIONS = ['none', 'chevronDown', 'caretAltDown', 'search'] as const;
+const ICONS = { none: undefined, chevronDown: chevronDownIcon, caretAltDown: caretAltDownIcon, search: searchIcon };
 
 const meta = {
   title: 'Raw Kendo/DropDownList',
@@ -17,6 +23,7 @@ const meta = {
     size: { control: 'radio', options: SIZES, description: 'Kendo size' },
     rounded: { control: 'select', options: ROUNDED, description: 'Kendo corner rounding' },
     fillMode: { control: 'radio', options: FILL_MODES, description: 'Kendo fillMode' },
+    svgIcon: { control: 'select', options: ICON_OPTIONS, mapping: ICONS, description: 'Toggle SVG icon (Kendo svgIcon slot)' },
     onChange: { action: 'change' },
   },
 } satisfies Meta<typeof DropDownList>;
@@ -30,6 +37,10 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: { data: DATA, defaultValue: 'Medium', disabled: true, size: 'medium' },
+};
+
+export const WithIcon: Story = {
+  args: { data: DATA, defaultValue: 'Medium', svgIcon: caretAltDownIcon, size: 'medium', rounded: 'medium', fillMode: 'solid' },
 };
 
 export const Sizes: Story = {
