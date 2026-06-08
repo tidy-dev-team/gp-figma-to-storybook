@@ -69,7 +69,7 @@ Use `use_figma` (per the `/figma-use` skill) to create the component / component
 
 ### Step 5 — Visual validation (required)
 
-Screenshot the created component (`get_screenshot` / `figma_take_screenshot`). Compare against the raw component in the running Storybook (`npm run storybook`, default `http://localhost:6006`). Check: same axes present, same option labels, default Kendo appearance, no invented variants. Iterate up to ~3 times to fix structural mismatches.
+Screenshot the created component (`get_screenshot` / `figma_take_screenshot`). Compare against the raw component in the running Storybook (`npm run storybook`, default `http://localhost:6006`) — with the **Branding** toolbar toggle **off** (the default), so Storybook shows default Kendo rather than the synced override. Check: same axes present, same option labels, default Kendo appearance, no invented variants. Iterate up to ~3 times to fix structural mismatches.
 
 ### Step 6 — Report
 

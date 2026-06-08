@@ -440,7 +440,7 @@ Border radius defined in the `Corner radius` variable collection.
 
 ## Components
 
-Flat component token summary for key UI elements. Full slot mappings are in `KENDOREACT_COMPONENTS.md`.
+Flat component token summary for key UI elements.
 
 ```json
 {

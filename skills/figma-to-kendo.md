@@ -75,10 +75,10 @@ Compare the branded Figma node's auto-layout against the raw component's expecta
 ```bash
 npx tsc --noEmit
 npm run build-storybook          # must exit 0
-npm run storybook                # (designer) visual: components now render branded
+npm run storybook                # (designer) flip the Branding toolbar toggle to "Genpact branded" to preview
 ```
 
-The branded look is confirmed visually in the running Storybook, since the override propagates to every Kendo component automatically.
+The branded look is confirmed visually in the running Storybook by flipping the **Branding** toolbar toggle to "Genpact branded" — that layers on the override, which then propagates to every Kendo component automatically. (The toggle defaults to off so the raw stages stay faithful to default Kendo.)
 
 ### Step 6 — Report
 

@@ -3,3 +3,6 @@ node_modules
 
 # Storybook build output
 storybook-static
+
+# Claude Code local worktree artifacts
+.claude/worktrees/

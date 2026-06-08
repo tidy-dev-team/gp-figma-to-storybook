@@ -25,7 +25,7 @@ Raw Kendo-9 components are authored in this repo's Storybook, mirrored 1:1 into 
 | 3 — *(designer brands in Figma)* | — | manual |
 | 4 — Update the component in Storybook from Figma | `/figma-to-kendo` | Figma → code |
 
-> See `docs/adr/0001-code-to-figma-round-trip.md` for the architecture decision, `CONTEXT.md` for canonical terms, and `REQUIREMENTS.md` for quality standards. This supersedes the earlier one-way `/genpact-figma-to-storybook` flow, now retired.
+> See `docs/adr/0001-code-to-figma-round-trip.md` for the architecture decision and `CONTEXT.md` for canonical terms. This supersedes the earlier one-way `/genpact-figma-to-storybook` flow, since removed.
 
 ---
 
@@ -139,10 +139,10 @@ src/theme/kendo-overrides.css    # updated global Kendo theme variables (with DE
 ```bash
 npx tsc --noEmit                 # zero errors
 npm run build-storybook          # exit 0
-npm run storybook                # components now render branded (the override is global)
+npm run storybook                # flip the Branding toolbar toggle to "Genpact branded" to preview the synced override
 ```
 
-Because the override is global, every Kendo component rebrands at once — the loop is closed.
+The override is a single global stylesheet, so when applied every Kendo component rebrands at once — the loop is closed. In Storybook it is layered on via the **Branding** toolbar toggle (default off = raw Kendo) so the raw stages stay visually faithful to default Kendo.
 
 ---
 
@@ -174,7 +174,7 @@ Because the override is global, every Kendo component rebrands at once — the l
 │   ├── stories/<Name>.stories.tsx     # CSF3 stories, title "Raw Kendo/<Name>"
 │   └── theme/
 │       └── kendo-overrides.css        # the single global brand override (stage-4 target)
-├── .storybook/preview.ts              # imports the Kendo Default theme + kendo-overrides.css
+├── .storybook/preview.ts              # loads the Kendo Default theme; toggles kendo-overrides.css via the Branding toolbar
 ├── skills/                            # skill definitions (authoritative)
 │   ├── kendo-storybook-scaffold.md
 │   ├── kendo-to-figma.md
@@ -183,9 +183,7 @@ Because the override is global, every Kendo component rebrands at once — the l
 ├── .claude/commands/                  # slash-command wrappers for the skills
 ├── CONTEXT.md                         # canonical domain terms
 ├── docs/adr/0001-code-to-figma-round-trip.md
-├── DESIGN.md                          # Genpact brand tokens (DTCG)
-├── REQUIREMENTS.md                    # quality standards for the round-trip
-└── v2.md                              # the plan driving the reorientation
+└── DESIGN.md                          # Genpact brand tokens (DTCG)
 ```
 
 ## Skills reference
@@ -196,7 +194,6 @@ Because the override is global, every Kendo component rebrands at once — the l
 | `/kendo-to-figma` | 2 | `<ComponentName> <sandbox-figma-url>` | a sandbox Figma file (never the DS file) |
 | `/figma-to-kendo` | 4 | `<ComponentName> <branded-figma-url>` | `src/theme/kendo-overrides.css` only |
 | `/ds-extract-design` | setup | foundation Figma URL | `DESIGN.md` |
-| `/genpact-figma-to-storybook` | **retired** | — | superseded by the round-trip |
 
 ## Design tokens
 

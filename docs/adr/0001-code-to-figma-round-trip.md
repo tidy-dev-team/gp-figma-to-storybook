@@ -6,7 +6,7 @@ accepted
 
 ## Context
 
-The project began as a one-way generator: paste a Figma component URL, and `/genpact-figma-to-storybook` writes a Genpact-branded KendoReact component + CSF3 story. The new requirement (`v2.md`) reverses and closes the loop: author components in code first, push them into Figma, let a designer brand them there, then sync the result back to code.
+The project began as a one-way generator: paste a Figma component URL, and `/genpact-figma-to-storybook` writes a Genpact-branded KendoReact component + CSF3 story. A new requirement reverses and closes the loop: author components in code first, push them into Figma, let a designer brand them there, then sync the result back to code.
 
 ## Decision
 
