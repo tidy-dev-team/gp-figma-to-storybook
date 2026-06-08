@@ -19,13 +19,13 @@ This project automates a **code→Figma→code round-trip** for Genpact's Design
 
 ## Skills
 
-### Round-trip skills (planned — v2)
+### Round-trip skills (built — v2)
 
-The round-trip is automated by three skills, mapping to the three automatable steps. **These are not built yet** — they are the v2 work.
+The round-trip is automated by three skills, mapping to the three automatable steps. Full usage (arguments, outputs, verification) is in `README.md`; authoritative definitions are in `skills/`.
 
-1. **`/kendo-storybook-scaffold`** — generate N raw Kendo-9 wrappers + CSF3 stories with full `argTypes` for each component's prop axes. (step 1)
-2. **`/kendo-to-figma`** — faithful 1:1 mirror of a raw component into a sandbox Figma file via the Figma MCP code-to-design. (step 2)
-3. **`/figma-to-kendo`** — read the polished Figma component → sync brand tokens into `src/theme/kendo-overrides.css` → regenerate/verify branded stories → flag structural drift. (step 4)
+1. **`/kendo-storybook-scaffold <ComponentName> [kendo-package]`** — generate a raw Kendo-9 wrapper + CSF3 story with `argTypes` for the component's real prop axes. (step 1)
+2. **`/kendo-to-figma <ComponentName> <sandbox-figma-url>`** — faithful 1:1 mirror of a raw component into a sandbox Figma file via the Figma MCP. Refuses to write to the canonical DS file. (step 2)
+3. **`/figma-to-kendo <ComponentName> <branded-figma-url>`** — read the branded Figma component → sync brand tokens into `src/theme/kendo-overrides.css` (global, only changed `--kendo-*` vars) → flag structural drift → verify build. (step 4)
 
 New skills are written for this repo, borrowing *patterns* (not code) from `tidy-dev-team/kido-ds-skills-automation`.
 
