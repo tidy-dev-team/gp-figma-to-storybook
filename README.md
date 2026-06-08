@@ -1,6 +1,6 @@
-# Genpact Design System — Code ⇄ Figma Round-Trip
+# GP Design System — Code ⇄ Figma Round-Trip
 
-A skill system that automates a **code→Figma→code round-trip** for Genpact's Design System, built on [KendoReact](https://www.telerik.com/kendo-react-ui/) primitives.
+A skill system that automates a **code→Figma→code round-trip** for GP Design System, built on [KendoReact](https://www.telerik.com/kendo-react-ui/) primitives.
 
 ## What this is
 
