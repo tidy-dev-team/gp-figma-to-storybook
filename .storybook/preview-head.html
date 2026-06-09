@@ -1,0 +1,34 @@
+<!--
+  Base font for the Storybook preview iframe.
+
+  The KendoReact Default theme sets `--kendo-font-family: inherit`, i.e. it ships
+  no font of its own and defers to the host page. Without this the preview falls
+  back to the browser default (Times New Roman). We point Kendo's font token at
+  Inter so raw `Raw Kendo/*` stories render in a sensible sans-serif — matching
+  how a real app (and Telerik's own demos) set a base font.
+
+  Branding (`kendo-overrides.css`) is layered on top via the toolbar toggle and
+  does not set a font, so this Inter base applies in both modes.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  /*
+    `!important` is required: Storybook/Vite injects the Kendo theme's all.css
+    (which declares `:root { --kendo-font-family: inherit }`) AFTER this static
+    head block, so without it the theme wins on source order and reverts to the
+    browser serif default. We also set html/body directly as a belt-and-suspenders
+    fallback for any element that doesn't read the Kendo token.
+  */
+  :root {
+    --kendo-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  }
+  html,
+  body {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+</style>
