@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { plusIcon, searchIcon, xIcon, checkIcon } from '@progress/kendo-svg-icons';
 import { Button } from '../components/Button/Button';
 
-const THEME_COLORS = ['base', 'primary', 'secondary', 'tertiary', 'info', 'success', 'warning', 'error', 'dark', 'light', 'inverse'] as const;
+const THEME_COLORS = ['base', 'primary', 'secondary', 'tertiary', 'info', 'success', 'warning', 'error', 'inverse'] as const;
 const FILL_MODES = ['solid', 'outline', 'flat', 'link', 'clear'] as const;
 const SIZES = ['small', 'medium', 'large'] as const;
 const ROUNDED = ['small', 'medium', 'large', 'full'] as const;
